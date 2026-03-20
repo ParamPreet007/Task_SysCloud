@@ -1,8 +1,11 @@
-
-
-
-
-import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material'
+import {
+  Box,
+  FormControl,
+  MenuItem,
+  Select,
+  Typography,
+} from '@mui/material'
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { ROLE_LIST, useRole } from '../auth/RoleProvider'
 
 export function RoleSwitcher() {
@@ -13,15 +16,40 @@ export function RoleSwitcher() {
   }
 
   return (
-    <Box sx={{ minWidth: 170 }}>
+    <Box sx={{ minWidth: 160 }}>
       <FormControl fullWidth size="small">
-        <InputLabel id="role-switcher-label">Role</InputLabel>
-
         <Select
-          labelId="role-switcher-label"
           value={role}
-          label="Role"
           onChange={onChange}
+          displayEmpty
+          IconComponent={KeyboardArrowDownIcon}
+          sx={{
+            borderRadius: 2,
+            height: 40,
+            backgroundColor: 'rgba(255,255,255,0.15)',
+            color: 'inherit',
+            fontWeight: 500,
+            backdropFilter: 'blur(6px)',
+
+            '& .MuiOutlinedInput-notchedOutline': {
+              border: 'none',
+            },
+
+            '&:hover': {
+              backgroundColor: 'rgba(255,255,255,0.25)',
+            },
+
+            '& .MuiSelect-select': {
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+            },
+          }}
+          renderValue={(selected) => (
+            <Typography variant="body2">
+              {selected || 'Select Role'}
+            </Typography>
+          )}
           data-testid="role-switcher"
         >
           {ROLE_LIST.map((r) => (
@@ -30,7 +58,6 @@ export function RoleSwitcher() {
             </MenuItem>
           ))}
         </Select>
-
       </FormControl>
     </Box>
   )
