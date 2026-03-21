@@ -1,6 +1,3 @@
-
-
-
 import { useCallback, useEffect, useState } from 'react'
 import {
   Alert,
@@ -11,6 +8,8 @@ import {
   Skeleton,
   Stack,
   Typography,
+  Button,
+  LinearProgress,
 } from '@mui/material'
 import { queryServicesOverview } from '../graphql/mockGraphqlClient'
 import { ServiceStatusChip } from './common/StatusIndicators'
@@ -42,10 +41,7 @@ export function ServicesTab(props) {
   }, [load])
 
   useEffect(() => {
-    props.onRegisterRefresh(() => {
-      load()
-    })
-
+    props.onRegisterRefresh(() => load())
     return () => props.onRegisterRefresh(null)
   }, [props, load])
 
@@ -54,16 +50,22 @@ export function ServicesTab(props) {
       {error ? (
         <Alert
           severity="error"
-          action={<button onClick={() => load()}>Retry</button>}
+          action={
+            <Button variant="outlined" size="small" onClick={load}>
+              Retry
+            </Button>
+          }
         >
           {error}
         </Alert>
       ) : (
         <Stack spacing={2}>
+          {/* Top right refresh indicator */}
           <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            {refreshing ? <CircularProgress size={18} /> : null}
+            {refreshing && <CircularProgress size={18} />}
           </Box>
 
+          {/* Grid Layout */}
           <Box
             sx={{
               display: 'grid',
@@ -75,29 +77,38 @@ export function ServicesTab(props) {
               gap: 2,
             }}
           >
+            {/* Loading Skeleton */}
             {loadingInitial
-              ? Array.from({ length: 5 }).map((_, i) => (
-                  <Box key={i}>
-                    <Card>
-                      <CardContent>
-                        <Skeleton variant="text" width="55%" />
-                        <Skeleton variant="rounded" height={28} sx={{ my: 1 }} />
-                        <Skeleton variant="text" width="80%" />
-                        <Skeleton variant="text" width="60%" />
-                        <Skeleton variant="text" width="40%" />
-                      </CardContent>
-                    </Card>
-                  </Box>
+              ? Array.from({ length: 6 }).map((_, i) => (
+                  <Card key={i}>
+                    <CardContent>
+                      <Skeleton width="50%" />
+                      <Skeleton height={30} sx={{ my: 1 }} />
+                      <Skeleton width="80%" />
+                      <Skeleton width="60%" />
+                    </CardContent>
+                  </Card>
                 ))
               : services.map((s) => (
-                  <Box key={s.id}>
-                    <Card variant="outlined">
-                      <CardContent>
+                  <Card
+                    key={s.id}
+                    variant="outlined"
+                    sx={{
+                      borderRadius: 3,
+                      transition: '0.3s',
+                      '&:hover': {
+                        boxShadow: 4,
+                        transform: 'translateY(-3px)',
+                      },
+                    }}
+                  >
+                    <CardContent>
+                      <Stack spacing={1.5}>
+                        {/* Header */}
                         <Stack
                           direction="row"
                           justifyContent="space-between"
                           alignItems="center"
-                          spacing={1}
                         >
                           <Typography variant="subtitle1" fontWeight={700}>
                             {s.serviceName}
@@ -105,17 +116,44 @@ export function ServicesTab(props) {
                           <ServiceStatusChip status={s.status} />
                         </Stack>
 
-                        <Box sx={{ mt: 1 }}>
-                          <Typography variant="body2" color="text.secondary">
-                            Uptime Percentage
-                          </Typography>
-                          <Typography variant="h6">
-                            {s.uptimePercentage.toFixed(2)}%
-                          </Typography>
-                        </Box>
+                        {/* Uptime */}
+                        <Box>
+  <Stack direction="row" justifyContent="space-between">
+    <Typography variant="body2" color="text.secondary">
+      Uptime
+    </Typography>
+    <Typography variant="body2" fontWeight={600}>
+      {s.uptimePercentage.toFixed(2)}%
+    </Typography>
+  </Stack>
 
-                        <Box sx={{ mt: 1 }}>
-                          <Typography variant="body2" color="text.secondary">
+  <LinearProgress
+    variant="determinate"
+    value={s.uptimePercentage}
+    sx={{
+      mt: 0.5,
+      height: 8,
+      borderRadius: 5,
+      backgroundColor: '#eee',
+      '& .MuiLinearProgress-bar': {
+        borderRadius: 5,
+        background:
+          s.uptimePercentage > 99
+            ? 'linear-gradient(90deg, #4caf50, #81c784)'
+            : s.uptimePercentage > 95
+            ? 'linear-gradient(90deg, #ff9800, #ffb74d)'
+            : 'linear-gradient(90deg, #f44336, #e57373)',
+      },
+    }}
+  />
+</Box>
+
+                        {/* Last Checked */}
+                        <Box>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                          >
                             Last Checked
                           </Typography>
                           <Typography variant="body1">
@@ -123,17 +161,24 @@ export function ServicesTab(props) {
                           </Typography>
                         </Box>
 
-                        <Box sx={{ mt: 1 }}>
-                          <Typography variant="body2" color="text.secondary">
-                            Open Incident Count
+                        {/* Incidents */}
+                        <Box>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                          >
+                            Open Incidents
                           </Typography>
-                          <Typography variant="body1">
+                          <Typography
+                            variant="body1"
+                            fontWeight={600}
+                          >
                             {s.openIncidentCount}
                           </Typography>
                         </Box>
-                      </CardContent>
-                    </Card>
-                  </Box>
+                      </Stack>
+                    </CardContent>
+                  </Card>
                 ))}
           </Box>
         </Stack>
