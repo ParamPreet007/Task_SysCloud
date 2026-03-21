@@ -21,6 +21,7 @@ export function TabsBar(props) {
       >
         {visibleTabs.map((t) => (
           <Tab
+          style={{fontWeight:"600",color:"black"}}
             key={t.id}
             value={t.id}
             label={t.label}

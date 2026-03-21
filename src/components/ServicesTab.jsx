@@ -46,7 +46,12 @@ export function ServicesTab(props) {
   }, [props, load])
 
   return (
-    <Box>
+
+    <>
+    <div className='text-xl font-bold !my-0'>
+      Service Health Overview
+    </div>
+    <Box  style={{cursor:"pointer"}}>
       {error ? (
         <Alert
           severity="error"
@@ -184,5 +189,6 @@ export function ServicesTab(props) {
         </Stack>
       )}
     </Box>
+    </>
   )
 }

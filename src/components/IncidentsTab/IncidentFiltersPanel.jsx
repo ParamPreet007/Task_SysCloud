@@ -1,87 +1,110 @@
-
-
-
-import { Box, Button, Stack, TextField, Typography } from '@mui/material'
-import Autocomplete from '@mui/material/Autocomplete'
+import {
+  Box,
+  Button,
+  Popover,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
+import Autocomplete from "@mui/material/Autocomplete";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import { useState } from "react";
 
 export function IncidentFiltersPanel(props) {
-  const selectedSeverityOptions = props.filtersConfig.severity.options.filter((o) =>
-    props.value.severities.includes(o.value)
-  )
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const open = Boolean(anchorEl);
+
+  const handleOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const selectedSeverityOptions = props.filtersConfig.severity.options.filter(
+    (o) => props.value.severities.includes(o.value),
+  );
 
   const selectedStatusOptions = props.filtersConfig.status.options.filter((o) =>
-    props.value.statuses.includes(o.value)
-  )
+    props.value.statuses.includes(o.value),
+  );
 
   const selectedServiceOption =
     props.value.serviceName == null
       ? null
-      : props.filtersConfig.service.options.find((o) => o.value === props.value.serviceName) ?? null
+      : (props.filtersConfig.service.options.find(
+          (o) => o.value === props.value.serviceName,
+        ) ?? null);
 
   return (
     <Stack spacing={2}>
-      <Typography variant="subtitle1" fontWeight={700}>
-        Filters
-      </Typography>
+      <div className="flex w-full justify-end">
+        <Button
+          variant="outlined"
+          startIcon={<FilterListIcon />}
+          onClick={handleOpen}
+        >
+          Filters
+        </Button>
+      </div>
 
-      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 2 }}>
-        
-        <Box sx={{ gridColumn: { xs: 'span 12', md: 'span 5' } }}>
-          <Autocomplete
-            multiple
-            disableCloseOnSelect
-            options={props.filtersConfig.severity.options}
-            value={selectedSeverityOptions}
-            getOptionLabel={(o) => o.label}
-            onChange={(_, next) =>
-              props.onChange({
-                ...props.value,
-                severities: next.map((x) => x.value),
-              })
-            }
-            renderInput={(params) => (
-              <TextField {...params} label="Severity" size="small" />
-            )}
-          />
-        </Box>
-
-        <Box sx={{ gridColumn: { xs: 'span 12', md: 'span 5' } }}>
-          <Autocomplete
-            multiple
-            disableCloseOnSelect
-            options={props.filtersConfig.status.options}
-            value={selectedStatusOptions}
-            getOptionLabel={(o) => o.label}
-            onChange={(_, next) =>
-              props.onChange({
-                ...props.value,
-                statuses: next.map((x) => x.value),
-              })
-            }
-            renderInput={(params) => (
-              <TextField {...params} label="Status" size="small" />
-            )}
-          />
-        </Box>
-
-        <Box
-          sx={{
-            gridColumn: { xs: 'span 12', md: 'span 2' },
-            display: 'flex',
-            alignItems: 'flex-start',
+      <Box
+        sx={{ display: "grid", gridTemplateColumns: "repeat(12, 1fr)", gap: 2 }}
+      >
+        <Popover
+          open={open}
+          anchorEl={anchorEl}
+          onClose={handleClose}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "right",
+          }}
+          PaperProps={{
+            sx: {
+              p: 2,
+              width: 600,
+            },
           }}
         >
-          <Button
-            variant="text"
-            onClick={props.onClearAll}
-            sx={{ mt: 0.5 }}
-            data-testid="clear-all-filters"
-          >
-            Clear All
-          </Button>
-        </Box>
+          <div className="flex gap-2 w-full mb-4">
+            <Autocomplete
+              className="w-full"
+              multiple
+              disableCloseOnSelect
+              options={props.filtersConfig.severity.options}
+              value={selectedSeverityOptions}
+              getOptionLabel={(o) => o.label}
+              onChange={(_, next) =>
+                props.onChange({
+                  ...props.value,
+                  severities: next.map((x) => x.value),
+                })
+              }
+              renderInput={(params) => (
+                <TextField {...params} label="Severity" size="small" />
+              )}
+            />
 
-        <Box sx={{ gridColumn: { xs: 'span 12', md: 'span 12' } }}>
+            <Autocomplete
+              className="w-full"
+              multiple
+              disableCloseOnSelect
+              options={props.filtersConfig.status.options}
+              value={selectedStatusOptions}
+              getOptionLabel={(o) => o.label}
+              onChange={(_, next) =>
+                props.onChange({
+                  ...props.value,
+                  statuses: next.map((x) => x.value),
+                })
+              }
+              renderInput={(params) => (
+                <TextField {...params} label="Status" size="small" />
+              )}
+            />
+          </div>
           <Autocomplete
             options={props.filtersConfig.service.options}
             value={selectedServiceOption}
@@ -98,9 +121,29 @@ export function IncidentFiltersPanel(props) {
             clearOnEscape
             isOptionEqualToValue={(a, b) => a.value === b.value}
           />
-        </Box>
+          {/* <Box
+            sx={{
+              gridColumn: { xs: "span 12", md: "span 2" },
+              display: "flex",
+              alignItems: "flex-start",
+            }}
+          > */}
+          <div className="flex justify-end">
+            <Button
+              variant="text"
+              onClick={props.onClearAll}
+              sx={{ mt: 0.5 }}
+              data-testid="clear-all-filters"
+            >
+              Clear All
+            </Button>
+          </div>
+            
+          {/* </Box> */}
 
+          <Box sx={{ gridColumn: { xs: "span 12", md: "span 12" } }}></Box>
+        </Popover>
       </Box>
     </Stack>
-  )
+  );
 }
