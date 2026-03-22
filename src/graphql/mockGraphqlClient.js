@@ -175,6 +175,25 @@ export async function mutateIncidentAction(input) {
   return { ...inc }
 }
 
+export async function mutateIncidentCreate(input) {
+  await sleep(400)
+
+  const newId = `INC-${1020 + incidents.length + 1}`
+  const newIncident = {
+    id: newId,
+    title: input.title,
+    severity: input.severity,
+    status: 'Open',
+    serviceName: input.serviceName,
+    assignee: input.assignee || 'Unassigned',
+    createdAt: Date.now(),
+    notes: input.notes || '',
+  }
+
+  incidents.push(newIncident)
+  return { ...newIncident }
+}
+
 export function getAllServiceNames() {
   return SERVICES_SEED.map((s) => s.serviceName)
 }

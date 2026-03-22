@@ -12,6 +12,7 @@ import { dashboardConfig } from '../../config/dashboardConfig'
 import { IncidentFiltersPanel } from './IncidentFiltersPanel'
 import { IncidentSidePanel } from './IncidentSidePanel'
 import { IncidentTable } from './IncidentTable'
+import { AddIncidentForm } from './AddIncidentForm'
 import { applyActionToStatus } from '../../utils/incidentActions'
 
 const PAGE_SIZE = dashboardConfig.incidentsTab.pageSize
@@ -42,6 +43,8 @@ export function IncidentsTab(props) {
   }, [incidents, selectedIncidentId])
 
   const [snack, setSnack] = useState({ open: false, message: '' })
+
+  const [showAddForm, setShowAddForm] = useState(false)
 
   const querySeqRef = useRef(0)
   const selectedIncidentIdRef = useRef(null)
@@ -191,6 +194,13 @@ export function IncidentsTab(props) {
     )
   }
 
+  const onIncidentAdded = (newIncident) => {
+    // Add to the list and refresh to get the updated count
+    setIncidents((prev) => [newIncident, ...prev])
+    setTotalCount((prev) => prev + 1)
+    setSnack({ open: true, message: 'Incident created successfully' })
+  }
+
   return (
     <Box>
       {error ? (
@@ -212,8 +222,7 @@ export function IncidentsTab(props) {
       className='bg-[#1976D2] text-white  p-2 rounded-[8px] cursor-pointer relative bottom-[5px]'
        
         onClick={() => {
-          // you can open modal or side panel here
-          setSelectedIncidentId('new') // temp trigger OR use separate state
+          setShowAddForm(true)
         }}
       >
         + New Incident
@@ -267,6 +276,13 @@ export function IncidentsTab(props) {
         incident={selectedIncident}
         onClose={() => setSelectedIncidentId(null)}
         onIncidentUpdated={onIncidentUpdated}
+      />
+
+      <AddIncidentForm
+        open={showAddForm}
+        onClose={() => setShowAddForm(false)}
+        servicesOptions={servicesOptions}
+        onIncidentAdded={onIncidentAdded}
       />
 
       <Snackbar
