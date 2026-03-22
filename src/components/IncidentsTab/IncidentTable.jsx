@@ -113,12 +113,17 @@ export function IncidentTable(props) {
       <Box
         sx={{
           display: 'flex',
-          justifyContent: 'flex-end',
-          p: 1,
-          gap: 1,
+          justifyContent: 'space-between',
           alignItems: 'center',
+          px: 2,
+          py: 1.5,
+          background: 'linear-gradient(90deg, #f8fafc, #eef2ff)',
         }}
+
       >
+         <Typography variant="subtitle1" fontWeight={700}>
+          Incidents
+        </Typography>
         {props.backgroundUpdating ? (
           <Typography variant="body2" color="text.secondary">
             Background updating…
@@ -128,10 +133,15 @@ export function IncidentTable(props) {
 
       <Table size="small">
         <TableHead>
-          <TableRow>
+          <TableRow sx={{
+    background: '#1976D2',
+    
+  }}
+>
             {props.columns.map((c) => (
               <TableCell key={c.id}>
-                <Typography variant="subtitle2" fontWeight={800}>
+                <Typography sx={{ color: '#fff', fontWeight: 700 }}
+ variant="subtitle2" fontWeight={800}>
                   {c.label}
                 </Typography>
               </TableCell>
