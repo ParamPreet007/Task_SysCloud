@@ -1,7 +1,3 @@
-
-
-
-
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Box,
@@ -11,7 +7,14 @@ import {
   Stack,
   TextField,
   Typography,
+  Chip,
+  IconButton,
 } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
+import BuildIcon from '@mui/icons-material/Build'
+import PersonIcon from '@mui/icons-material/Person'
+import AccessTimeIcon from '@mui/icons-material/AccessTime'
+import NotesIcon from '@mui/icons-material/Notes'
 import { mutateIncidentNotes } from '../../graphql/mockGraphqlClient'
 import { SeverityBadge, IncidentStatusChip } from '../common/StatusIndicators'
 import { formatRelativeMinutes } from '../../utils/format'
@@ -100,7 +103,7 @@ export function IncidentSidePanel(props) {
       }
 
       startSave(value)
-    }, 2000)
+    }, 1500)
 
     return () => {
       if (debounceTimerRef.current) {
@@ -109,25 +112,28 @@ export function IncidentSidePanel(props) {
     }
   }, [props.open, props.incident, value, lastSavedText, isSaving])
 
-  useEffect(() => {
-    return () => {
-      if (debounceTimerRef.current) {
-        window.clearTimeout(debounceTimerRef.current)
-      }
-    }
-  }, [])
-
   return (
     <Drawer
       anchor="right"
       open={props.open}
       onClose={props.onClose}
-      PaperProps={{ sx: { width: 460, p: 2 } }}
+      PaperProps={{ sx: { width: 480, p: 0, borderRadius: '16px 0 0 16px' } }}
     >
       {props.incident ? (
-        <Stack spacing={2}>
-          <Box>
-            <Typography variant="h6" fontWeight={800}>
+        <Stack sx={{ height: '100%' }}>
+
+          {/* Header */}
+          <Box sx={{ p: 3, borderBottom: '1px solid #eee' }}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center">
+              <Typography variant="h6" fontWeight={700}>
+                Incident Details
+              </Typography>
+              <IconButton onClick={props.onClose}>
+                <CloseIcon />
+              </IconButton>
+            </Stack>
+
+            <Typography variant="h5" fontWeight={800} sx={{ mt: 1 }}>
               {props.incident.title}
             </Typography>
 
@@ -137,67 +143,93 @@ export function IncidentSidePanel(props) {
             </Stack>
           </Box>
 
-          <Divider />
+          {/* Content */}
+          <Stack spacing={3} sx={{ p: 3, flex: 1, overflowY: 'auto' }}>
 
-          <Box>
-            <Typography variant="subtitle1" fontWeight={800}>
-              {dashboardConfig.incidentsTab.sidePanel.detailsTitle}
-            </Typography>
-
-            <Stack spacing={1} sx={{ mt: 1 }}>
-              <Typography variant="body2" color="text.secondary">
-                Service: {props.incident.serviceName}
+            {/* Details Card */}
+            <Box sx={{ p: 2, borderRadius: 3, boxShadow: 1 }}>
+              <Typography fontWeight={700} sx={{ mb: 2 }}>
+                {dashboardConfig.incidentsTab.sidePanel.detailsTitle}
               </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Assignee: {props.incident.assignee}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Created: {formatRelativeMinutes(props.incident.createdAt)}
-              </Typography>
-            </Stack>
-          </Box>
 
-          <Divider />
+              <Stack spacing={2}>
 
-          <Box>
-            <Typography variant="subtitle1" fontWeight={800} sx={{ mb: 1 }}>
-              {dashboardConfig.incidentsTab.sidePanel.notesTitle}
-            </Typography>
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <BuildIcon color="action" />
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Service</Typography>
+                    <Typography fontWeight={600}>{props.incident.serviceName}</Typography>
+                  </Box>
+                </Stack>
 
-            <TextField
-              multiline
-              minRows={8}
-              fullWidth
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              placeholder="Type notes... (auto-saves)"
-              inputProps={{ 'aria-label': 'Incident notes' }}
-            />
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <PersonIcon color="action" />
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Assignee</Typography>
+                    <Typography fontWeight={600}>{props.incident.assignee}</Typography>
+                  </Box>
+                </Stack>
 
-            <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 1 }}>
-              {displayState.kind === 'saved' ? (
-                <Typography variant="body2" color="success.main" data-testid="notes-saved">
-                  ✓ Saved
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <AccessTimeIcon color="action" />
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Created</Typography>
+                    <Typography fontWeight={600}>{formatRelativeMinutes(props.incident.createdAt)}</Typography>
+                  </Box>
+                </Stack>
+
+              </Stack>
+            </Box>
+
+            {/* Notes */}
+            <Box sx={{ p: 2, borderRadius: 3, boxShadow: 1 }}>
+              <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+                <NotesIcon fontSize="small" />
+                <Typography fontWeight={700}>
+                  {dashboardConfig.incidentsTab.sidePanel.notesTitle}
                 </Typography>
-              ) : displayState.kind === 'saving' ? (
-                <>
-                  <CircularProgress size={14} />
-                  <Typography variant="body2" color="text.secondary" data-testid="notes-saving">
-                    Saving...
+              </Stack>
+
+              <TextField
+                multiline
+                minRows={6}
+                fullWidth
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                placeholder="Write notes..."
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                  },
+                }}
+              />
+
+              <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 1 }}>
+                {displayState.kind === 'saved' ? (
+                  <Typography variant="caption" color="success.main">
+                    ✓ All changes saved
                   </Typography>
-                </>
-              ) : (
-                <Typography variant="body2" color="warning.main" data-testid="notes-unsaved">
-                  Unsaved changes
-                </Typography>
-              )}
-            </Stack>
-          </Box>
+                ) : displayState.kind === 'saving' ? (
+                  <>
+                    <CircularProgress size={14} />
+                    <Typography variant="caption" color="text.secondary">
+                      Saving...
+                    </Typography>
+                  </>
+                ) : (
+                  <Typography variant="caption" color="warning.main">
+                    Unsaved changes
+                  </Typography>
+                )}
+              </Stack>
+            </Box>
+
+          </Stack>
         </Stack>
       ) : (
-        <Typography variant="body2" color="text.secondary">
-          Select an incident.
-        </Typography>
+        <Box sx={{ p: 3 }}>
+          <Typography color="text.secondary">Select an incident</Typography>
+        </Box>
       )}
     </Drawer>
   )
