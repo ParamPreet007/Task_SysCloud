@@ -39,16 +39,15 @@ export function IncidentFiltersPanel(props) {
         ) ?? null);
 
   return (
-    <Stack spacing={2}>
-      <div className="flex w-full justify-end">
+    <Stack spacing={1}>
         <Button
           variant="outlined"
+          className="relative bottom-0.5"
           startIcon={<FilterListIcon />}
           onClick={handleOpen}
         >
           Filters
         </Button>
-      </div>
 
       <Box
         sx={{ display: "grid", gridTemplateColumns: "repeat(12, 1fr)", gap: 2 }}

@@ -2,7 +2,7 @@
 
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Alert, Box, Snackbar, Stack, TablePagination } from '@mui/material'
+import { Alert, Box, Button, Snackbar, Stack, TablePagination } from '@mui/material'
 import {
   getAllServiceNames,
   mutateIncidentAction,
@@ -205,8 +205,21 @@ export function IncidentsTab(props) {
           {error}
         </Alert>
       ) : (
-        <Stack spacing={2}>
-          <IncidentFiltersPanel
+        <Stack spacing={1}>
+          <div className='flex gap-2 items-center justify-end'>
+             {props.role === 'Admin' && (
+      <button
+      className='bg-[#1976D2] text-white  p-2 rounded-[8px] cursor-pointer relative bottom-[5px]'
+       
+        onClick={() => {
+          // you can open modal or side panel here
+          setSelectedIncidentId('new') // temp trigger OR use separate state
+        }}
+      >
+        + New Incident
+      </button>
+    )}
+         <IncidentFiltersPanel
             filtersConfig={resolvedFiltersConfig}
             value={filters}
             onClearAll={() =>
@@ -214,6 +227,10 @@ export function IncidentsTab(props) {
             }
             onChange={onFilterChange}
           />
+
+         
+          </div>
+         
 
           <IncidentTable
             columns={resolvedColumns}
